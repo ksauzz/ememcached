@@ -47,7 +47,7 @@ handle_cast(_Msg, State) ->
   {noreply, State}.
 
 handle_info({tcp, Socket, RawData}, State) ->
-  gen_tcp:send(Socket, RawData),
+  execute(Socket, string:tokens(RawData, " \r\n")),
   {noreply, State};
 handle_info(timeout, #state{lsock = LSock} = State) ->
   {ok, _Sock} = gen_tcp:accept(LSock),
@@ -63,3 +63,16 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal Function Definitions
 %% ------------------------------------------------------------------
 
+execute(Socket, ["get", Data]) ->
+  Value = ememcached:get(Data),
+  %% VALUE <key> <flags> <bytes> [<cas unique>]\r\n
+  %% <data block>\r\n
+  response(Socket, "VALUE " ++ Data ++ " " ++ Value ++ " \r\n" ++ "" ++ "\r\n");
+execute(Socket, ["set", Key, Value]) ->
+  ememcached:set(Key, Value),
+  response(Socket, "STORED\r\n");
+execute(Socket, _) ->
+  response(Socket, "ERROR\r\n").
+
+response(Socket, Response) ->
+  gen_tcp:send(Socket, Response).
