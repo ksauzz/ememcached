@@ -5,7 +5,7 @@
 -define(PORT, 11211).
 
 % TODO: only sock?
--record(state, {port, lsock}).
+-record(state, {port::integer(), lsock::gen_tcp:socket()}).
 
 -include_lib("eunit/include/eunit.hrl").
 
