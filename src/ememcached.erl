@@ -12,7 +12,7 @@
 %% Commands "incr" and "decr"
 
 init() ->
-  ets:new(ememcached,[bag, named_table]),
+  ets:new(ememcached,[public, bag, named_table]),
   ok.
 
 %% "set" means "store this data".

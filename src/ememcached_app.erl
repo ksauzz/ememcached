@@ -2,6 +2,10 @@
 
 -behaviour(application).
 
+-define(PORT, 11211).
+
+-include_lib("eunit/include/eunit.hrl").
+
 %% Application callbacks
 -export([start/2, stop/1]).
 
@@ -10,7 +14,15 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
-    ememcached_sup:start_link().
+    ememcached:init(),
+    {ok, LSock} = gen_tcp:listen(?PORT, [{active, true}]),
+    ?debugVal("listening port"),
+    case ememcached_sup:start_link(LSock) of
+      {ok, Pid} -> ememcached_sup:start_child(),
+        {ok, Pid};
+      Other ->
+        {error, Other}
+    end.
 
 stop(_State) ->
     ok.

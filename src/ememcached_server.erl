@@ -2,8 +2,6 @@
 -behaviour(gen_server).
 -define(SERVER, ?MODULE).
 
--define(PORT, 11211).
-
 % TODO: only sock?
 -record(state, {port::integer(), lsock::gen_tcp:socket()}).
 
@@ -13,7 +11,7 @@
 %% API Function Exports
 %% ------------------------------------------------------------------
 
--export([start_link/0]).
+-export([start_link/1]).
 
 %% ------------------------------------------------------------------
 %% gen_server Function Exports
@@ -26,19 +24,17 @@
 %% ------------------------------------------------------------------
 
 % TODO: remove debug option.
-start_link() ->
-  gen_server:start_link({local, ?SERVER}, ?MODULE, [], [{debug,[trace]}]).
+start_link(LSock) ->
+  ?debugVal("start_link runnging..."),
+  gen_server:start_link({local, ?SERVER}, ?MODULE, [LSock], [{debug,[trace]}]).
 
 %% ------------------------------------------------------------------
 %% gen_server Function Definitions
 %% ------------------------------------------------------------------
 
-init(_) ->
+init([LSock]) ->
   ?debugVal("init runnging..."),
-  ememcached:init(),
-  {ok, LSock} = gen_tcp:listen(?PORT, [{active, true}]),
-  ?debugVal("listening port"),
-  {ok, #state{port=?PORT,lsock=LSock}, 0}.
+  {ok, #state{lsock=LSock}, 0}.
 
 handle_call(_Request, _From, State) ->
   {noreply, ok, State}.
@@ -47,10 +43,16 @@ handle_cast(_Msg, State) ->
   {noreply, State}.
 
 handle_info({tcp, Socket, RawData}, State) ->
+  ?debugVal("handle_info runnging..."),
   execute(Socket, string:tokens(RawData, " \r\n")),
   {noreply, State};
 handle_info(timeout, #state{lsock = LSock} = State) ->
+  ?debugVal("handle_info:timeout runnging..."),
   {ok, _Sock} = gen_tcp:accept(LSock),
+  ememcached_sup:start_child(),
+  {noreply, State};
+handle_info(_, State) ->
+  ?debugVal("handle_info recv Ilegal msg.."),
   {noreply, State}.
 
 terminate(_Reason, _State) ->
