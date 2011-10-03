@@ -32,11 +32,11 @@
 %% ===================================================================
 
 start_link(LSock) ->
-    ?debugVal("start_link is running..."),
+    ?debugMsg("start_link is running..."),
     supervisor:start_link({local, ?MODULE}, ?MODULE, [LSock]).
 
 start_child() ->
-    ?debugVal("start_child is running..."),
+    ?debugMsg("start_child is running..."),
     supervisor:start_child(?MODULE, []).
 
 %% ===================================================================
@@ -52,6 +52,6 @@ start_child() ->
 %%                ChildSpec = child_spec()
 
 init([LSock]) ->
-    ?debugVal("init is running..."),
+    ?debugMsg("init is running..."),
     {ok, { {simple_one_for_one, 0, 1}, [?CHILD(ememcached_server, worker, LSock)]} }.
 

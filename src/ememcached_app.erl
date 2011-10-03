@@ -16,7 +16,7 @@
 start(_StartType, _StartArgs) ->
     ememcached:init(),
     {ok, LSock} = gen_tcp:listen(?PORT, [{active, true}]),
-    ?debugVal("listening port"),
+    ?debugMsg("listening port"),
     case ememcached_sup:start_link(LSock) of
       {ok, Pid} -> ememcached_sup:start_child(),
         {ok, Pid};

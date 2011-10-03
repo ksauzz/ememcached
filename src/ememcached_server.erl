@@ -25,7 +25,7 @@
 
 % TODO: remove debug option.
 start_link(LSock) ->
-  ?debugVal("start_link runnging..."),
+  ?debugMsg("start_link runnging..."),
   gen_server:start_link({local, ?SERVER}, ?MODULE, [LSock], [{debug,[trace]}]).
 
 %% ------------------------------------------------------------------
@@ -33,7 +33,7 @@ start_link(LSock) ->
 %% ------------------------------------------------------------------
 
 init([LSock]) ->
-  ?debugVal("init runnging..."),
+  ?debugMsg("init runnging..."),
   {ok, #state{lsock=LSock}, 0}.
 
 handle_call(_Request, _From, State) ->
@@ -43,16 +43,16 @@ handle_cast(_Msg, State) ->
   {noreply, State}.
 
 handle_info({tcp, Socket, RawData}, State) ->
-  ?debugVal("handle_info runnging..."),
+  ?debugMsg("handle_info runnging..."),
   execute(Socket, string:tokens(RawData, " \r\n")),
   {noreply, State};
 handle_info(timeout, #state{lsock = LSock} = State) ->
-  ?debugVal("handle_info:timeout runnging..."),
+  ?debugMsg("handle_info:timeout runnging..."),
   {ok, _Sock} = gen_tcp:accept(LSock),
   ememcached_sup:start_child(),
   {noreply, State};
 handle_info(_, State) ->
-  ?debugVal("handle_info recv Ilegal msg.."),
+  ?debugMsg("handle_info recv Ilegal msg.."),
   {noreply, State}.
 
 terminate(_Reason, _State) ->
