@@ -1,6 +1,8 @@
 Erlang Memcached Clone for study
 ================================
 
+*under development*
+
 build
 -----
 
