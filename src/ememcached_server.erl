@@ -76,6 +76,8 @@ execute(Socket, ["get", Data]) ->
 execute(Socket, ["set", Key, Value]) ->
   ememcached:set(Key, Value),
   response(Socket, "STORED\r\n");
+execute(Socket, ["quit"]) ->
+  gen_tcp:close(Socket);
 execute(Socket, _) ->
   response(Socket, "ERROR\r\n").
 
