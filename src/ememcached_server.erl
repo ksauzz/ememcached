@@ -26,7 +26,7 @@
 % TODO: remove debug option.
 start_link(LSock) ->
   ?debugMsg("start_link runnging..."),
-  gen_server:start_link({local, ?SERVER}, ?MODULE, [LSock], [{debug,[trace]}]).
+  gen_server:start_link(?MODULE, [LSock], [{debug,[trace]}]).
 
 %% ------------------------------------------------------------------
 %% gen_server Function Definitions
