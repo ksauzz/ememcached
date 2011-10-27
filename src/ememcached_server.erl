@@ -76,6 +76,11 @@ execute(Socket, ["get", Data]) ->
 execute(Socket, ["set", Key, Value]) ->
   ememcached:set(Key, Value),
   response(Socket, "STORED\r\n");
+execute(Socket, ["delete", Key]) ->
+  case ememcached:delete(Key) of
+    ok -> response(Socket, "DELETED\r\n");
+    not_found -> response(Socket, "NOT_FOUND\r\n")
+  end;
 execute(Socket, ["quit"]) ->
   gen_tcp:close(Socket);
 execute(Socket, _) ->

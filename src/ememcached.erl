@@ -2,7 +2,8 @@
 
 -export([init/0]).
 -export([set/2,add/2]).
--export([get/1]).
+-export([get/1,contains/1]).
+-export([delete/1]).
 
 %% https://raw.github.com/memcached/memcached/master/doc/protocol.txt
 
@@ -17,7 +18,7 @@ init() ->
 
 %% "set" means "store this data".
 set(Key,Value) ->
-  ets:delete(ememcached, Key),
+  delete(Key),
   ets:insert(ememcached, {Key,Value}),
   ok.
 
@@ -31,3 +32,18 @@ add(Key,Value) ->
 
 get(Key) ->
   lists:concat(lists:map(fun({_,V}) -> V end, ets:lookup(ememcached,Key))).
+
+contains(Key) ->
+  case ememcached:get(Key) of
+     [] -> false;
+     _  -> true
+   end.
+
+delete(Key) ->
+  case contains(Key) of
+    true -> 
+      ets:delete(ememcached, Key),
+      ok;
+    false -> not_found
+  end.
+
