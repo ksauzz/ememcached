@@ -53,7 +53,7 @@ handle_info(timeout, #state{lsock = LSock} = State) ->
   {noreply, State};
 handle_info({tcp_closed, _Socket}, State) ->
   ?debugMsg("session is closed..."),
-  {noreply, State};
+  {stop, normal, State};
 handle_info(_, State) ->
   ?debugMsg("handle_info recv Ilegal msg.."),
   {noreply, State}.
