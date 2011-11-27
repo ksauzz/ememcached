@@ -25,4 +25,5 @@ start(_StartType, _StartArgs) ->
     end.
 
 stop(_State) ->
+    ememcached:destroy(),
     ok.

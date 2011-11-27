@@ -1,6 +1,6 @@
 -module(ememcached).
 
--export([init/0]).
+-export([init/0,destroy/0]).
 -export([set/2,add/2]).
 -export([get/1,contains/1]).
 -export([delete/1]).
@@ -14,6 +14,10 @@
 
 init() ->
   ets:new(ememcached,[public, bag, named_table]),
+  ok.
+
+destroy() ->
+  ets:delete(ememcached),
   ok.
 
 %% "set" means "store this data".
