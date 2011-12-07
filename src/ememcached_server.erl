@@ -72,7 +72,7 @@ execute(Socket, ["get", Data]) ->
   Value = ememcached:get(Data),
   %% VALUE <key> <flags> <bytes> [<cas unique>]\r\n
   %% <data block>\r\n
-  response(Socket, "VALUE " ++ Data ++ " " ++ Value ++ " \r\n" ++ "" ++ "\r\n");
+  response(Socket, "VALUE " ++ Data ++ " " ++ Value ++ "\r\n" ++ "" ++ "\r\n");
 execute(Socket, ["set", Key, Value]) ->
   ememcached:set(Key, Value),
   response(Socket, "STORED\r\n");
