@@ -1,10 +1,7 @@
 -module(ememcached_server).
 -behaviour(gen_server).
 -define(SERVER, ?MODULE).
-
-% TODO: only sock?
--record(state, {port::integer(), lsock::gen_tcp:socket()}).
-
+-include("ememcached.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
 %% ------------------------------------------------------------------
