@@ -66,11 +66,11 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal Function Definitions
 %% ------------------------------------------------------------------
 
-execute(Socket, ["get", Data], _) ->
-  Value = ememcached:get(Data),
+execute(Socket, ["get", Key], _) ->
+  Value = ememcached:get(Key),
   %% VALUE <key> <flags> <bytes> [<cas unique>]\r\n
   %% <data block>\r\n
-  response(Socket, "VALUE " ++ Data ++ " " ++ Value ++ "\r\n" ++ "" ++ "\r\n");
+  response(Socket, "VALUE " ++ Key ++ " " ++ Value ++ "\r\n" ++ "" ++ "\r\n");
 execute(Socket, ["set", Key, Value], _) ->
   ememcached:set(Key, Value),
   response(Socket, "STORED\r\n");
