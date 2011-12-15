@@ -41,7 +41,8 @@ handle_cast(_Msg, State) ->
 
 handle_info({tcp, Socket, RawData}, State) ->
   ?debugMsg("handle_info runnging..."),
-  execute(Socket, string:tokens(RawData, " \r\n")),
+  [CmdLine | DataBlock] = string:tokens(RawData, "\r\n"),
+  execute(Socket, string:tokens(CmdLine, " "), DataBlock),
   {noreply, State};
 handle_info(timeout, #state{lsock = LSock} = State) ->
   ?debugMsg("handle_info:timeout runnging..."),
@@ -65,22 +66,22 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal Function Definitions
 %% ------------------------------------------------------------------
 
-execute(Socket, ["get", Data]) ->
+execute(Socket, ["get", Data], _) ->
   Value = ememcached:get(Data),
   %% VALUE <key> <flags> <bytes> [<cas unique>]\r\n
   %% <data block>\r\n
   response(Socket, "VALUE " ++ Data ++ " " ++ Value ++ "\r\n" ++ "" ++ "\r\n");
-execute(Socket, ["set", Key, Value]) ->
+execute(Socket, ["set", Key, Value], _) ->
   ememcached:set(Key, Value),
   response(Socket, "STORED\r\n");
-execute(Socket, ["delete", Key]) ->
+execute(Socket, ["delete", Key], _) ->
   case ememcached:delete(Key) of
     ok -> response(Socket, "DELETED\r\n");
     not_found -> response(Socket, "NOT_FOUND\r\n")
   end;
-execute(Socket, ["quit"]) ->
+execute(Socket, ["quit"], _) ->
   gen_tcp:close(Socket);
-execute(Socket, _) ->
+execute(Socket, _, _) ->
   response(Socket, "ERROR\r\n").
 
 response(Socket, Response) ->
