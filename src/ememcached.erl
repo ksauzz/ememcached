@@ -35,7 +35,11 @@ add(Key,Value) ->
    end.
 
 get(Key) ->
-  lists:concat(lists:map(fun({_,V}) -> V end, ets:lookup(ememcached,Key))).
+  case ets:lookup(ememcached,Key) of
+    []  -> [];
+    [{Key,Value}|_] -> Value
+  end.
+
 
 contains(Key) ->
   case ememcached:get(Key) of

@@ -67,12 +67,13 @@ code_change(_OldVsn, State, _Extra) ->
 %% ------------------------------------------------------------------
 
 execute(Socket, ["get", Key], _) ->
-  Value = ememcached:get(Key),
+  #ememcached_record{key=_Key,flags=Flags,bytes=Bytes,data_block=DataBlock} = ememcached:get(Key),
   %% VALUE <key> <flags> <bytes> [<cas unique>]\r\n
   %% <data block>\r\n
-  response(Socket, "VALUE " ++ Key ++ " " ++ Value ++ "\r\n" ++ "" ++ "\r\n");
-execute(Socket, ["set", Key, Value], _) ->
-  ememcached:set(Key, Value),
+  response(Socket, "VALUE " ++ Key ++ " " ++ Flags ++ " " ++ Bytes ++ "\r\n" ++ DataBlock ++ "\r\n");
+execute(Socket, ["set", Key, Flags, Bytes], DataBlock) ->
+  Record = #ememcached_record{key=Key,flags=Flags,bytes=Bytes,data_block=DataBlock},
+  ememcached:set(Key, Record),
   response(Socket, "STORED\r\n");
 execute(Socket, ["delete", Key], _) ->
   case ememcached:delete(Key) of
