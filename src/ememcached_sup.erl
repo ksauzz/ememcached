@@ -3,8 +3,6 @@
 
 -behaviour(supervisor).
 
--include_lib("eunit/include/eunit.hrl").
-
 %% API
 -export([start_link/1, start_child/0]).
 
@@ -32,11 +30,9 @@
 %% ===================================================================
 
 start_link(LSock) ->
-    ?debugMsg("start_link is running..."),
     supervisor:start_link({local, ?MODULE}, ?MODULE, [LSock]).
 
 start_child() ->
-    ?debugMsg("start_child is running..."),
     supervisor:start_child(?MODULE, []).
 
 %% ===================================================================
@@ -52,6 +48,5 @@ start_child() ->
 %%                ChildSpec = child_spec()
 
 init([LSock]) ->
-    ?debugMsg("init is running..."),
     {ok, { {simple_one_for_one, 0, 1}, [?CHILD(ememcached_server, worker, LSock)]} }.
 

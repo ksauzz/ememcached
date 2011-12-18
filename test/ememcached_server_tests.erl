@@ -31,7 +31,6 @@ send(Message) ->
 receive_data(Sock) ->
   receive
     {tcp, Sock, Data} ->
-      ?debugVal(Data),
       binary_to_list(Data);
     {tcp_closed, Sock} ->
       quit
