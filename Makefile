@@ -23,3 +23,9 @@ distclean:
 
 qc:
 	@./rebar qc skip_deps=true
+
+dialyzer:
+	@dialyzer --src src/*.erl
+
+docs:
+	@./rebar doc
