@@ -22,14 +22,14 @@ destroy() ->
   ets:delete(ememcached),
   ok.
 
--spec(set/2 :: (nonempty_string, any()) -> 'ok').
+-spec(set/2 :: (nonempty_string(), any()) -> 'ok').
 %% "set" means "store this data".
 set(Key,Value) ->
   delete(Key),
   ets:insert(ememcached, {Key,Value}),
   ok.
 
--spec(add/2 :: (nonempty_string, any()) -> 'ok').
+-spec(add/2 :: (nonempty_string(), any()) -> 'ok').
 %% "add" means "store this data, but only if the server
 %% *doesn't* already hold data for this key".
 add(Key,Value) ->
@@ -38,7 +38,7 @@ add(Key,Value) ->
      _  -> ok
    end.
 
--spec(get/1 :: (nonempty_string) -> any()).
+-spec(get/1 :: (nonempty_string()) -> any()).
 get(Key) ->
   case ets:lookup(ememcached,Key) of
     []  -> [];
@@ -46,14 +46,14 @@ get(Key) ->
   end.
 
 
--spec(contains/1 :: (nonempty_string) -> true|false).
+-spec(contains/1 :: (nonempty_string()) -> boolean()).
 contains(Key) ->
   case ememcached:get(Key) of
      [] -> false;
      _  -> true
    end.
 
--spec(delete/1 :: (nonempty_string) -> true|false).
+-spec(delete/1 :: (nonempty_string()) -> ok|not_found).
 delete(Key) ->
   case contains(Key) of
     true -> 
