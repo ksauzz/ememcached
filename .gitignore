@@ -1,5 +1,9 @@
 *ebin/*
 .eunit/*
+.test/*
 *.beam
 rel/
-
+log/
+logs/
+doc/
+erl_crash.dump
