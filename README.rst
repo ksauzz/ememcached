@@ -1,6 +1,9 @@
 Erlang Memcached Clone for study
 ================================
 
+.. image:: https://secure.travis-ci.org/ksauzz/ememcached.png
+    :target: http://travis-ci.org/ksauzz/ememcached
+
 *under development*
 
 build
