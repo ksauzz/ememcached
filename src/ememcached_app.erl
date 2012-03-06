@@ -2,8 +2,6 @@
 
 -behaviour(application).
 
--define(PORT, 11211).
-
 %% Application callbacks
 -export([start/2, stop/1]).
 
@@ -12,16 +10,7 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
-    ememcached:init(),
-    {ok, LSock} = gen_tcp:listen(?PORT, [{reuseaddr, true},
-                                         {active, true}]),
-    case ememcached_sup:start_link(LSock) of
-      {ok, Pid} -> ememcached_sup:start_child(),
-        {ok, Pid};
-      Other ->
-        {error, Other}
-    end.
+  ememcached_server:start_link().
 
 stop(_State) ->
-    ememcached:destroy(),
     ok.
