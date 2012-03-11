@@ -30,7 +30,7 @@ start_link() ->
 %% ------------------------------------------------------------------
 
 init([]) ->
-  ememcached:init(),
+  ememcached_store:init(),
   process_flag(trap_exit, true),
   {ok, LSock} = gen_tcp:listen(?PORT, [{reuseaddr, true},
                                        {active, true}]),
@@ -58,7 +58,7 @@ handle_info(_Msg, State) ->
   {noreply, State}.
 
 terminate(_Reason, #state{lsock = LSock}) ->
-  ememcached:destroy(),
+  ememcached_store:destroy(),
   gen_tcp:close(LSock),
   ok.
 
@@ -76,16 +76,16 @@ new_acceptor_pool(LSock) ->
   _Pool = lists:foldl(F, [], lists:seq(1, ?POOL_SIZE)).
 
 execute(Socket, ["get", Key], _) ->
-  #ememcached_record{key=_Key,flags=Flags,bytes=Bytes,data_block=DataBlock} = ememcached:get(Key),
+  #ememcached_record{key=_Key,flags=Flags,bytes=Bytes,data_block=DataBlock} = ememcached_store:get(Key),
   %% VALUE <key> <flags> <bytes> [<cas unique>]\r\n
   %% <data block>\r\n
   response(Socket, "VALUE " ++ Key ++ " " ++ Flags ++ " " ++ Bytes ++ "\r\n" ++ DataBlock ++ "\r\n");
 execute(Socket, ["set", Key, Flags, Bytes], DataBlock) ->
   Record = #ememcached_record{key=Key,flags=Flags,bytes=Bytes,data_block=DataBlock},
-  ememcached:set(Key, Record),
+  ememcached_store:set(Key, Record),
   response(Socket, "STORED\r\n");
 execute(Socket, ["delete", Key], _) ->
-  case ememcached:delete(Key) of
+  case ememcached_store:delete(Key) of
     ok -> response(Socket, "DELETED\r\n");
     not_found -> response(Socket, "NOT_FOUND\r\n")
   end;
