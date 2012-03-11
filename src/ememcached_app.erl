@@ -12,7 +12,7 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
-    ememcached:init(),
+    ememcached_store:init(),
     {ok, LSock} = gen_tcp:listen(?PORT, [{reuseaddr, true},
                                          {active, true}]),
     case ememcached_sup:start_link(LSock) of
@@ -23,5 +23,5 @@ start(_StartType, _StartArgs) ->
     end.
 
 stop(_State) ->
-    ememcached:destroy(),
+    ememcached_store:destroy(),
     ok.

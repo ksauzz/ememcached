@@ -1,4 +1,4 @@
--module(ememcached).
+-module(ememcached_store).
 
 -export([init/0,destroy/0]).
 -export([set/2,add/2]).
@@ -33,8 +33,8 @@ set(Key,Value) ->
 %% "add" means "store this data, but only if the server
 %% *doesn't* already hold data for this key".
 add(Key,Value) ->
-  case ememcached:get(Key) of
-     [] -> ememcached:set(Key,Value);
+  case ememcached_store:get(Key) of
+     [] -> ememcached_store:set(Key,Value);
      _  -> ok
    end.
 
@@ -48,7 +48,7 @@ get(Key) ->
 
 -spec(contains/1 :: (nonempty_string()) -> boolean()).
 contains(Key) ->
-  case ememcached:get(Key) of
+  case ememcached_store:get(Key) of
      [] -> false;
      _  -> true
    end.
