@@ -10,7 +10,7 @@
 %% ------------------------------------------------------------------
 -export([start_link/0]).
 
--export([destroy/0]).
+-export([stop/0]).
 -export([set/2,add/2]).
 -export([get/1,contains/1]).
 -export([delete/1]).
@@ -59,7 +59,7 @@ handle_info(_Msg, State) ->
   {noreply, State}.
 
 terminate(_Reason, _State) ->
-  do_destroy().
+  do_stop().
 
 code_change(_OldVsn, State, _Extra) ->
   {ok, State}.
@@ -83,7 +83,7 @@ delete(Key) ->
 contains(Key) ->
   gen_server:call(?SERVER, {contains, [Key]}).
 
-destroy() ->
+stop() ->
   gen_server:call(?SERVER, {stop}),
   ok.
 
@@ -100,8 +100,8 @@ init_table() ->
   ets:new(ememcached,[public, bag, named_table]),
   ok.
 
--spec(do_destroy/0 :: () -> 'ok').
-do_destroy() ->
+-spec(do_stop/0 :: () -> 'ok').
+do_stop() ->
   ets:delete(ememcached),
   ok.
 

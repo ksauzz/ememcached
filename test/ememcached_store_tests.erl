@@ -17,7 +17,7 @@ simple_test() ->
   ?assertEqual(ok,  ememcached_store:add("bitbucket",Git2)),
   ?assertEqual(Hg2, ememcached_store:get("bitbucket")),
 
-  ?assertEqual(ok, ememcached_store:destroy()),
+  ?assertEqual(ok, ememcached_store:stop()),
   ok.
 
 delete_test() ->
@@ -27,7 +27,7 @@ delete_test() ->
   ?assertEqual(ok,        ememcached_store:add("found", #ememcached_record{key="found", data_block="1"})),
   ?assertEqual(ok,        ememcached_store:delete("found")),
 
-  ?assertEqual(ok, ememcached_store:destroy()),
+  ?assertEqual(ok, ememcached_store:stop()),
   ok.
 
 contains_test() ->
@@ -37,5 +37,5 @@ contains_test() ->
   ?assertEqual(ok, ememcached_store:add("found", #ememcached_record{key="found", data_block="1"})),
   ?assert(ememcached_store:contains("found")),
 
-  ?assertEqual(ok, ememcached_store:destroy()),
+  ?assertEqual(ok, ememcached_store:stop()),
   ok.
