@@ -3,7 +3,7 @@
 -include_lib("eunit/include/eunit.hrl").
 
 simple_test() ->
-  ?assertEqual(ok, ememcached_store:init()),
+  {ok, _Pid} = ememcached_store:start_link(),
 
   Hg1=#ememcached_record{key="github",data_block="hg"},
   Git1=#ememcached_record{key="github",data_block="git"},
@@ -21,7 +21,7 @@ simple_test() ->
   ok.
 
 delete_test() ->
-  ?assertEqual(ok, ememcached_store:init()),
+  {ok, _Pid} = ememcached_store:start_link(),
 
   ?assertEqual(not_found, ememcached_store:delete("not_found")),
   ?assertEqual(ok,        ememcached_store:add("found", #ememcached_record{key="found", data_block="1"})),
@@ -31,7 +31,7 @@ delete_test() ->
   ok.
 
 contains_test() ->
-  ?assertEqual(ok, ememcached_store:init()),
+  {ok, _Pid} = ememcached_store:start_link(),
 
   ?assertNot(ememcached_store:contains("not_found")),
   ?assertEqual(ok, ememcached_store:add("found", #ememcached_record{key="found", data_block="1"})),

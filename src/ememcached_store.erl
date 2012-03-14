@@ -1,9 +1,92 @@
 -module(ememcached_store).
+-behaviour(gen_server).
 
--export([init/0,destroy/0]).
+-define(SERVER, ?MODULE).
+
+-include_lib("eunit/include/eunit.hrl").
+
+%% ------------------------------------------------------------------
+%% API Function Exports
+%% ------------------------------------------------------------------
+-export([start_link/0]).
+
+-export([destroy/0]).
 -export([set/2,add/2]).
 -export([get/1,contains/1]).
 -export([delete/1]).
+
+%% ------------------------------------------------------------------
+%% gen_server Function Exports
+%% ------------------------------------------------------------------
+
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+
+%% ------------------------------------------------------------------
+%% API Function Definitions
+%% ------------------------------------------------------------------
+
+% TODO: remove debug option.
+start_link() ->
+  gen_server:start_link({local, ?SERVER}, ?MODULE, [], [{debug,[trace]}]).
+
+%% ------------------------------------------------------------------
+%% gen_server Function Definitions
+%% ------------------------------------------------------------------
+
+init(_Args) ->
+  init_table(),
+  {ok, []}.
+
+handle_call({get, [Key]}, _From, State) ->
+  {reply, do_get(Key), State};
+handle_call({set, [Key, Value]}, _From, State) ->
+  {reply, do_set(Key, Value), State};
+handle_call({add, [Key, Value]}, _From, State) ->
+  {reply, do_add(Key, Value), State};
+handle_call({contains, [Key]}, _From, State) ->
+  {reply, do_contains(Key), State};
+handle_call({delete, [Key]}, _From, State) ->
+  {reply, do_delete(Key), State};
+handle_call({stop}, _From, State) ->
+  {stop, normal, stopped, State};
+handle_call(_Msg, _From, State) ->
+  {noreply, State}.
+
+handle_cast(_Msg, State) ->
+  {noreply, State}.
+
+handle_info(_Msg, State) ->
+  {noreply, State}.
+
+terminate(_Reason, _State) ->
+  do_destroy().
+
+code_change(_OldVsn, State, _Extra) ->
+  {ok, State}.
+
+%% ------------------------------------------------------------------
+%% Internal Function Definitions
+%% ------------------------------------------------------------------
+
+get(Key) ->
+  gen_server:call(?SERVER, {get, [Key]}).
+
+set(Key, Value) ->
+  gen_server:call(?SERVER, {set, [Key, Value]}).
+
+add(Key, Value) ->
+  gen_server:call(?SERVER, {add, [Key, Value]}).
+
+delete(Key) ->
+  gen_server:call(?SERVER, {delete, [Key]}).
+
+contains(Key) ->
+  gen_server:call(?SERVER, {contains, [Key]}).
+
+destroy() ->
+  gen_server:call(?SERVER, {stop}),
+  ok.
+
 
 %% https://raw.github.com/memcached/memcached/master/doc/protocol.txt
 
@@ -12,50 +95,50 @@
 %% The command "delete" allows for explicit deletion of items
 %% Commands "incr" and "decr"
 
--spec(init/0 :: () -> 'ok').
-init() ->
+-spec(init_table/0 :: () -> 'ok').
+init_table() ->
   ets:new(ememcached,[public, bag, named_table]),
   ok.
 
--spec(destroy/0 :: () -> 'ok').
-destroy() ->
+-spec(do_destroy/0 :: () -> 'ok').
+do_destroy() ->
   ets:delete(ememcached),
   ok.
 
--spec(set/2 :: (nonempty_string(), any()) -> 'ok').
+-spec(do_set/2 :: (nonempty_string(), any()) -> 'ok').
 %% "set" means "store this data".
-set(Key,Value) ->
-  delete(Key),
+do_set(Key,Value) ->
+  do_delete(Key),
   ets:insert(ememcached, {Key,Value}),
   ok.
 
--spec(add/2 :: (nonempty_string(), any()) -> 'ok').
+-spec(do_add/2 :: (nonempty_string(), any()) -> 'ok').
 %% "add" means "store this data, but only if the server
 %% *doesn't* already hold data for this key".
-add(Key,Value) ->
-  case ememcached_store:get(Key) of
-     [] -> ememcached_store:set(Key,Value);
+do_add(Key,Value) ->
+  case do_get(Key) of
+     [] -> do_set(Key,Value);
      _  -> ok
    end.
 
--spec(get/1 :: (nonempty_string()) -> any()).
-get(Key) ->
+-spec(do_get/1 :: (nonempty_string()) -> any()).
+do_get(Key) ->
   case ets:lookup(ememcached,Key) of
     []  -> [];
     [{Key,Value}|_] -> Value
   end.
 
 
--spec(contains/1 :: (nonempty_string()) -> boolean()).
-contains(Key) ->
-  case ememcached_store:get(Key) of
+-spec(do_contains/1 :: (nonempty_string()) -> boolean()).
+do_contains(Key) ->
+  case do_get(Key) of
      [] -> false;
      _  -> true
    end.
 
--spec(delete/1 :: (nonempty_string()) -> ok|not_found).
-delete(Key) ->
-  case contains(Key) of
+-spec(do_delete/1 :: (nonempty_string()) -> ok|not_found).
+do_delete(Key) ->
+  case do_contains(Key) of
     true -> 
       ets:delete(ememcached, Key),
       ok;

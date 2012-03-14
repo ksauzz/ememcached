@@ -23,14 +23,14 @@
 
 % TODO: remove debug option.
 start_link() ->
+  ememcached_store:start_link(),
   gen_server:start_link(?MODULE, [], [{debug,[trace]}]).
 
 %% ------------------------------------------------------------------
 %% gen_server Function Definitions
 %% ------------------------------------------------------------------
 
-init([]) ->
-  ememcached_store:init(),
+init(_Args) ->
   process_flag(trap_exit, true),
   {ok, LSock} = gen_tcp:listen(?PORT, [{reuseaddr, true},
                                        {active, true}]),
