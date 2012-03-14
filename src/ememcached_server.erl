@@ -30,7 +30,6 @@ start_link() ->
 %% ------------------------------------------------------------------
 
 init(_Args) ->
-  ememcached_store:start_link(),
   {ok, []}.
 
 handle_call({tcp, Socket, RawData}, _From,  State) ->
