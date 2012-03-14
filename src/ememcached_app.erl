@@ -10,12 +10,7 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
-  {ok, _} = ememcached_store:start_link(),
-  {ok, _} = ememcached_server:start_link(),
-  {ok, _} = ememcached_acceptor_sup:start_link(),
-  {ok, self()}.
+  ememcached_sup:start_link().
 
 stop(_State) ->
-  ememcached_store:stop(),
-  ememcached_server:stop(),
   ok.
