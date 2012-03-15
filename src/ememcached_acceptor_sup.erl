@@ -14,10 +14,8 @@
 
 %% Helper macro for declaring children of supervisor
 -define(CHILD(Module, No, Type, Args),
-  {list_to_atom(
-      atom_to_list(Module) ++ "_" ++ integer_to_list(No)),
-    {Module, start_link, Args}, permanent, 5000, Type, [Module]
-  }).
+  PName = list_to_atom(atom_to_list(Module) ++ "_" ++ integer_to_list(No)),
+  {PName, {Module, start_link, Args}, permanent, 5000, Type, [Module]}).
 
 %% ===================================================================
 %% API functions
@@ -34,7 +32,9 @@ init(_Args) ->
     {ok, LSock} = gen_tcp:listen(?PORT, [{reuseaddr, true},
                                          {active, true}]),
     WorkerSpec = lists:map(fun(X) ->
-          ?CHILD(ememcached_acceptor, X, worker, [LSock])
+          ModuleName = ememcached_acceptor,
+          PName = list_to_atom(atom_to_list(ModuleName) ++ "_" ++ integer_to_list(X)),
+          {PName, {ModuleName, start_link, [LSock, PName]}, permanent, 5000, worker, [ModuleName]}
       end,
       lists:seq(1, ?POOL_SIZE)),
     {ok, {{one_for_one, 5, 10}, WorkerSpec}}.

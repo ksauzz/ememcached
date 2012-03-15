@@ -1,11 +1,12 @@
 -module(ememcached_acceptor).
--export([init/2, start_link/1]).
+-export([init/3, start_link/2]).
 -include_lib("eunit/include/eunit.hrl").
 
-start_link(LSock) ->
-  proc_lib:start_link(?MODULE, init, [LSock, self()]).
+start_link(LSock, PName) ->
+  proc_lib:start_link(?MODULE, init, [LSock, PName, self()]).
 
-init(LSock, Parent) ->
+init(LSock, PName, Parent) ->
+  register(PName, self()),
   proc_lib:init_ack(Parent, {ok, self()}),
   {ok, Sock} = gen_tcp:accept(LSock),
   loop(Sock).
