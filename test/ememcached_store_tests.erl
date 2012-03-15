@@ -7,6 +7,7 @@ simple_test() ->
 
   Hg1=#ememcached_record{key="github",data_block="hg"},
   Git1=#ememcached_record{key="github",data_block="git"},
+  ?assertEqual([], ememcached_store:get("github")),
   ?assertEqual(ok,   ememcached_store:set("github",Hg1)),
   ?assertEqual(ok,   ememcached_store:set("github",Git1)),
   ?assertEqual(Git1, ememcached_store:get("github")),

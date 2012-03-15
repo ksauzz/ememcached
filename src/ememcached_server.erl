@@ -58,10 +58,14 @@ code_change(_OldVsn, State, _Extra) ->
 %% ------------------------------------------------------------------
 
 execute(Socket, ["get", Key], _) ->
-  #ememcached_record{key=_Key,flags=Flags,bytes=Bytes,data_block=DataBlock} = ememcached_store:get(Key),
-  %% VALUE <key> <flags> <bytes> [<cas unique>]\r\n
-  %% <data block>\r\n
-  response(Socket, "VALUE " ++ Key ++ " " ++ Flags ++ " " ++ Bytes ++ "\r\n" ++ DataBlock ++ "\r\n");
+  case ememcached_store:get(Key) of
+    #ememcached_record{key=_Key,flags=Flags,bytes=Bytes,data_block=DataBlock} ->
+      %% VALUE <key> <flags> <bytes> [<cas unique>]\r\n
+      %% <data block>\r\n
+      response(Socket, "VALUE " ++ Key ++ " " ++ Flags ++ " " ++ Bytes ++ "\r\n" ++ DataBlock ++ "\r\n");
+    [] ->
+      response(Socket, "\r\n")
+  end;
 execute(Socket, ["set", Key, Flags, Bytes], DataBlock) ->
   Record = #ememcached_record{key=Key,flags=Flags,bytes=Bytes,data_block=DataBlock},
   ememcached_store:set(Key, Record),
