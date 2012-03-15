@@ -1,8 +1,6 @@
 -module(ememcached_server).
 -behaviour(gen_server).
 -define(SERVER, ?MODULE).
--define(PORT, 11211).
--define(POOL_SIZE, 16).
 -include("ememcached.hrl").
 
 %% ------------------------------------------------------------------
