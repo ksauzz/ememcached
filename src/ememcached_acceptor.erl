@@ -7,7 +7,12 @@ start_link(LSock) ->
 
 init(LSock, Parent) ->
   proc_lib:init_ack(Parent, {ok, self()}),
-  {ok, _Sock} = gen_tcp:accept(LSock),
+  {ok, Sock} = gen_tcp:accept(LSock),
+  loop(Sock).
+
+loop(Sock) ->
   receive
     Msg -> gen_server:call(ememcached_server, Msg)
-  end.
+  end,
+  loop(Sock).
+  

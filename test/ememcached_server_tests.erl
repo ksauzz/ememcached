@@ -16,9 +16,9 @@ start_stop_test() ->
 std_test() ->
   setup(),
   ?assertEqual("ERROR\r\n", send("invaid command")),
-  ?assertEqual("\r\n", send("get empty")),
+  ?assertEqual("\r\nEND\r\n", send("get empty")),
   ?assertEqual("STORED\r\n", send("set key1 0 6\r\nvalue1")),
-  ?assertEqual("VALUE key1 0 6\r\nvalue1\r\n", send("get key1")),
+  ?assertEqual("VALUE key1 0 6\r\nvalue1\r\nEND\r\n", send("get key1")),
   ?assertEqual("DELETED\r\n", send("delete key1")),
   ?assertEqual("NOT_FOUND\r\n", send("delete key1")),
   ?assertEqual(quit, send("quit")),

@@ -35,11 +35,11 @@ init(_Args) ->
 handle_call({tcp, Socket, RawData}, _From,  State) ->
   [CmdLine | DataBlock] = string:tokens(RawData, "\r\n"),
   execute(Socket, string:tokens(CmdLine, " "), DataBlock),
-  {noreply, State};
+  {reply, ok, State};
 handle_call({stop}, _From, State) ->
   {stop, normal, stopped, State};
 handle_call(_Request, _From, State) ->
-  {noreply, ok, State}.
+  {reply, error, State}.
 
 handle_cast(_Msg, State) ->
   {noreply, State}.
@@ -62,9 +62,11 @@ execute(Socket, ["get", Key], _) ->
     #ememcached_record{key=_Key,flags=Flags,bytes=Bytes,data_block=DataBlock} ->
       %% VALUE <key> <flags> <bytes> [<cas unique>]\r\n
       %% <data block>\r\n
-      response(Socket, "VALUE " ++ Key ++ " " ++ Flags ++ " " ++ Bytes ++ "\r\n" ++ DataBlock ++ "\r\n");
+      response(Socket,
+        "VALUE " ++ Key ++ " " ++ Flags ++ " " ++ Bytes ++ "\r\n" 
+        ++ DataBlock ++ "\r\nEND\r\n");
     [] ->
-      response(Socket, "\r\n")
+      response(Socket, "\r\nEND\r\n")
   end;
 execute(Socket, ["set", Key, Flags, Bytes], DataBlock) ->
   Record = #ememcached_record{key=Key,flags=Flags,bytes=Bytes,data_block=DataBlock},
