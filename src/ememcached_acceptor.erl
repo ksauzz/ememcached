@@ -15,5 +15,6 @@ loop(Sock) ->
   receive
     Msg -> gen_server:call(ememcached_server, Msg)
   end,
+  inet:setopts(Sock, [active, once]), 
   loop(Sock).
   

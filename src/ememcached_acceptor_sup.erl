@@ -30,7 +30,7 @@ start_link() ->
 
 init(_Args) ->
     {ok, LSock} = gen_tcp:listen(?PORT, [{reuseaddr, true},
-                                         {active, true}]),
+                                         {active, once}]),
     WorkerSpec = lists:map(fun(X) ->
           ModuleName = ememcached_acceptor,
           PName = list_to_atom(atom_to_list(ModuleName) ++ "_" ++ integer_to_list(X)),
