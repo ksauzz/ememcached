@@ -32,9 +32,6 @@ init(_Args) ->
   {ok, []}.
 
 handle_call({tcp, Socket, RawData}, _From,  State) ->
-  ?debugVal(RawData),
-  %[CmdLine | DataBlock] = string:tokens(RawData, "\r\n"),
-  %execute(Socket, string:tokens(CmdLine, " "), DataBlock),
   ParsedData = binary:split(RawData, [<<" ">>,<<"\r\n">>],[global]),
   execute(Socket, lists:filter(fun(X) -> X=/=<<>> end, ParsedData)),
   {reply, ok, State};
@@ -61,8 +58,7 @@ code_change(_OldVsn, State, _Extra) ->
 
 execute(Socket, [<<"get">>, <<Key/binary>>]) ->
   case ememcached_store:get(Key) of
-    #ememcached_record{key=_Key,flags=Flags,bytes=Bytes,data_block=DataBlock}=Data ->
-      ?debugVal(Data),
+    #ememcached_record{key=_Key,flags=Flags,bytes=Bytes,data_block=DataBlock} ->
       %% VALUE <key> <flags> <bytes> [<cas unique>]\r\n
       %% <data block>\r\n
       response(Socket,
