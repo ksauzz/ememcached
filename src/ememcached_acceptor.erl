@@ -1,6 +1,5 @@
 -module(ememcached_acceptor).
 -export([init/3, start_link/2]).
--include_lib("eunit/include/eunit.hrl").
 
 start_link(LSock, PName) ->
   proc_lib:start_link(?MODULE, init, [LSock, PName, self()]).
@@ -13,8 +12,8 @@ init(LSock, PName, Parent) ->
 
 loop(Sock) ->
   receive
-    Msg -> gen_server:call(ememcached_server, Msg)
+    {tcp, Sock, RawData} ->
+      ememcached_request:process(Sock, RawData)
   end,
   inet:setopts(Sock, [active, once]), 
   loop(Sock).
-  

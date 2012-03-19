@@ -26,7 +26,6 @@ init([]) ->
     process_flag(trap_exit, true),
     {ok, { {one_for_one, 5, 10}, [
           ?CHILD(ememcached_store, worker),
-          ?CHILD(ememcached_server, worker),
           ?CHILD(ememcached_acceptor_sup, supervisor)
         ]} }.
 
