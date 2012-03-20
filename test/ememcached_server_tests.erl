@@ -15,17 +15,18 @@ start_stop_test() ->
 
 std_test() ->
   setup(),
-  ?assertEqual("ERROR\r\n", send("invaid command")),
-  ?assertEqual("END\r\n", send("get empty")),
-  ?assertEqual("STORED\r\n", send("set key1 0 6\r\nvalue1")),
-  ?assertEqual("VALUE key1 0 6\r\nvalue1\r\nEND\r\n", send("get key1")),
-  ?assertEqual("DELETED\r\n", send("delete key1")),
-  ?assertEqual("NOT_FOUND\r\n", send("delete key1")),
-  ?assertEqual(quit, send("quit")),
+  {ok, Sock} = gen_tcp:connect("localhost", 11211, [binary, {packet, 0}]),
+
+  ?assertEqual("ERROR\r\n", send(Sock, "invaid command")),
+  ?assertEqual("END\r\n", send(Sock, "get empty")),
+  ?assertEqual("STORED\r\n", send(Sock, "set key1 0 6\r\nvalue1")),
+  ?assertEqual("VALUE key1 0 6\r\nvalue1\r\nEND\r\n", send(Sock, "get key1")),
+  ?assertEqual("DELETED\r\n", send(Sock, "delete key1")),
+  ?assertEqual("NOT_FOUND\r\n", send(Sock, "delete key1")),
+  ?assertEqual(quit, send(Sock, "quit")),
   cleanup().
 
-send(Message) ->
-  {ok, Sock} = gen_tcp:connect("localhost", 11211, [binary, {packet, 0}]),
+send(Sock, Message) ->
   ok = gen_tcp:send(Sock, Message ++ "\r\n"),
   receive_data(Sock).
 

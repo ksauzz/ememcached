@@ -15,5 +15,5 @@ loop(Sock) ->
     {tcp, Sock, RawData} ->
       ememcached_request:process(Sock, RawData)
   end,
-  inet:setopts(Sock, [active, once]), 
+  inet:setopts(Sock, [{active, once}]), 
   loop(Sock).
