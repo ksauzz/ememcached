@@ -17,7 +17,7 @@ process(Socket, <<"get">>, [<<Key/binary>>]) ->
         list_to_binary([<<"VALUE ">>,  Key, <<" ">>,  Flags, <<" ">>, Bytes, <<"\r\n">>,
             DataBlock, <<"\r\nEND\r\n">>]));
     [] ->
-      response(Socket, <<"\r\nEND\r\n">>)
+      response(Socket, <<"END\r\n">>)
   end;
 process(Socket, <<"set">>, [<<Key/binary>>, <<Flags/binary>>, <<Bytes/binary>>, <<DataBlock/binary>>]) ->
   Record = #ememcached_record{key=Key,flags=Flags,bytes=Bytes,data_block=DataBlock},
