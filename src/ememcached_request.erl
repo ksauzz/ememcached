@@ -19,10 +19,17 @@ process(Socket, <<"get">>, [<<Key/binary>>]) ->
     [] ->
       response(Socket, <<"END\r\n">>)
   end;
-process(Socket, <<"set">>, [<<Key/binary>>, <<Flags/binary>>, <<Bytes/binary>>, <<DataBlock/binary>>]) ->
-  Record = #ememcached_record{key=Key,flags=Flags,bytes=Bytes,data_block=DataBlock},
-  ememcached_store:set(Key, Record),
-  response(Socket, <<"STORED\r\n">>);
+process(Socket, <<"set">>, [<<Key/binary>>, <<Flags/binary>>, <<Bytes/binary>>]) ->
+  case gen_tcp:recv(Socket, 0) of
+    {ok, RawData} ->
+      [DataBlock, <<>>] = binary:split(RawData, [<<"\r\n">>]),
+      Record = #ememcached_record{key=Key,flags=Flags,bytes=Bytes,data_block=DataBlock},
+      ememcached_store:set(Key, Record),
+      response(Socket, <<"STORED\r\n">>);
+    Other ->
+      error_logger:error_report(io_lib:format("receive unexpected data ~p", [Other])),
+      response(Socket, <<"ERROR\r\n">>)
+  end;
 process(Socket, <<"delete">>, [<<Key/binary>>]) ->
   case ememcached_store:delete(Key) of
     ok -> response(Socket, <<"DELETED\r\n">>);
