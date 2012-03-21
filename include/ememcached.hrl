@@ -4,6 +4,7 @@
    {key::string(),
     flags::integer(),
     exptime::integer(),
+    created_datetime::integer(),
     bytes::integer(),
     data_block::binary()}).
 

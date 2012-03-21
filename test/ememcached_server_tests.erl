@@ -19,7 +19,7 @@ std_test() ->
 
   ?assertEqual("ERROR\r\n", send(Sock, ["invaid command"])),
   ?assertEqual("END\r\n", send(Sock, ["get empty"])),
-  ?assertEqual("STORED\r\n", send(Sock, ["set key1 0 6", "value1"])),
+  ?assertEqual("STORED\r\n", send(Sock, ["set key1 0 100 6", "value1"])),
   ?assertEqual("VALUE key1 0 6\r\nvalue1\r\nEND\r\n", send(Sock, ["get key1"])),
   ?assertEqual("DELETED\r\n", send(Sock, ["delete key1"])),
   ?assertEqual("NOT_FOUND\r\n", send(Sock, ["delete key1"])),
