@@ -16,7 +16,6 @@ eunit:
 
 clean:
 	@./rebar clean skip_deps=true
-	@rm -r doc/*
 
 distclean:
 	@./rebar delete-deps
