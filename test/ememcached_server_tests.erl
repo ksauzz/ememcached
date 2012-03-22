@@ -3,9 +3,11 @@
 
 %% TODO: replace to fixture's setup
 setup() ->
+  application:start(sasl),
   application:start(ememcached).
 
 cleanup() ->
+  application:stop(sasl),
   application:stop(ememcached).
 
 start_stop_test() ->
