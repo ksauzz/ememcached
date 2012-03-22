@@ -1,3 +1,5 @@
 language: erlang
 otp_release:
    - R15B
+notifications:
+  disabled: true
