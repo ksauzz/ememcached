@@ -2,7 +2,7 @@
 
 -behaviour(supervisor).
 
--define(PORT, 11211).
+-define(PORT, 9999).
 -define(POOL_SIZE, 16).
 -include_lib("eunit/include/eunit.hrl").
 
