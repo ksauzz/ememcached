@@ -26,7 +26,7 @@ process(Sock, <<"get">>, [<<Key/binary>>]) ->
   end;
 process(Sock, <<"set">>, [<<Key/binary>>, <<Flags/binary>>, <<ExpTime/binary>>, <<Bytes/binary>>]) ->
   case gen_tcp:recv(Sock, 0) of
-    {ok, RawData} ->
+    {ok, <<RawData/bitstring>>} ->
       [DataBlock, <<>>] = binary:split(RawData, [<<"\r\n">>]),
       Record = #ememcached_record{
         key=Key,
